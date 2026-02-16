@@ -44,7 +44,22 @@ Chaque idée doit contenir :
     temperature: 0.8
   });
 
-  return new Response(completion.choices[0].message.content, {
-    headers: { "Content-Type": "application/json" }
+ return new Response(completion.choices[0].message.content, {
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  }
+});
+
+  export async function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    }
   });
 }
+
