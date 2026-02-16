@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [result, setResult] = useState(null);
+  const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const testAPI = async () => {
@@ -25,13 +25,11 @@ export default function Home() {
         }),
       });
 
-      const text = await res.text();
-      console.log("RAW RESPONSE:", text);
+      const data = await res.json();
+      setIdeas(data);
 
-      setResult(text);
     } catch (err) {
-      console.error("ERROR:", err);
-      setResult("Erreur côté navigateur");
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -39,16 +37,25 @@ export default function Home() {
 
   return (
     <div style={{ padding: 40 }}>
-      <h1>Test API</h1>
+      <h1>Générateur d'idées</h1>
+
       <button onClick={testAPI} disabled={loading}>
-        {loading ? "Chargement..." : "Tester génération"}
+        {loading ? "Chargement..." : "Générer 3 idées"}
       </button>
 
-      {result && (
-        <pre style={{ marginTop: 20 }}>
-          {result}
-        </pre>
-      )}
+      <div style={{ marginTop: 30 }}>
+        {ideas.map((idea, index) => (
+          <div key={index} style={{
+            border: "1px solid #ccc",
+            padding: 20,
+            marginBottom: 20,
+            borderRadius: 10
+          }}>
+            <h2>{idea.nom || `Idée ${index + 1}`}</h2>
+            <p>{idea.description}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
