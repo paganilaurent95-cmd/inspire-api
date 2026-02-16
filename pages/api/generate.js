@@ -1,3 +1,8 @@
-export default function handler(req, res) {
-  res.status(200).json({ message: "API fonctionne 🚀" });
+{
+  "name": "inspire-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "next": "latest"
+  }
 }
