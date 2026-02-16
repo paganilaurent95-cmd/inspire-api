@@ -2,19 +2,27 @@ export const runtime = "nodejs";
 
 import OpenAI from "openai";
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
 export async function POST(req) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  const { budget, temps, type, competences, risque, objectif } = body;
+    const { budget, temps, type, competences, risque, objectif } = body;
 
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
-  const prompt = `
+    const prompt = `
 Tu es un expert en création de business réaliste pour le marché francophone.
 
-Génère 7 idées de business adaptées à ce profil :
+Génère EXACTEMENT 3 idées adaptées à ce profil :
 
 Budget : ${budget}
 Temps disponible : ${temps}
@@ -23,43 +31,29 @@ Compétences : ${competences}
 Tolérance au risque : ${risque}
 Objectif : ${objectif}
 
-Retourne uniquement du JSON sous forme de tableau.
-
-Chaque idée doit contenir :
-{
-  "nom": "",
-  "description": "",
-  "pourquoi_cest_adapte": "",
-  "budget_estime": "",
-  "temps_par_semaine": "",
-  "premiere_action": "",
-  "potentiel_mensuel_estime": "",
-  "niveau_difficulte": ""
-}
+Retourne uniquement un tableau JSON avec 3 objets.
 `;
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.8
-  });
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.8
+    });
 
- return new Response(completion.choices[0].message.content, {
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    return new Response(completion.choices[0].message.content, {
+      headers: corsHeaders
+    });
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: "Erreur génération" }),
+      { status: 500, headers: corsHeaders }
+    );
   }
-});
-
-  export async function OPTIONS() {
-  return new Response(null, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    }
-  });
 }
 
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: corsHeaders
+  });
+}
